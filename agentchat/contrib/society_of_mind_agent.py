@@ -41,6 +41,7 @@ class SocietyOfMindAgent(ConversableAgent):
         code_execution_config: Union[Dict, Literal[False]] = False,
         llm_config: Optional[Union[Dict, Literal[False]]] = False,
         default_auto_reply: Optional[Union[str, Dict, None]] = "",
+        silent: Optional[bool] = False,
     ):
         super().__init__(
             name=name,
@@ -53,7 +54,7 @@ class SocietyOfMindAgent(ConversableAgent):
             llm_config=llm_config,
             default_auto_reply=default_auto_reply,
         )
-
+        self.silent = silent
         self.update_chat_manager(chat_manager)
 
         # response_preparer default depends on if the llm_config is set, and if a client was created
@@ -189,7 +190,7 @@ class SocietyOfMindAgent(ConversableAgent):
                 self.chat_manager.send(attributed_message, agent, request_reply=False, silent=True)
 
         try:
-            self.initiate_chat(self.chat_manager, message=messages[-1], clear_history=False)
+            self.initiate_chat(self.chat_manager, message=messages[-1], clear_history=False, silent=self.silent)
         except:
             traceback.print_exc()
 

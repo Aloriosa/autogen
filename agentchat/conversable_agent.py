@@ -69,6 +69,7 @@ class ConversableAgent(LLMAgent):
         self,
         name: str,
         system_message: Optional[Union[str, List]] = "You are a helpful AI Assistant.",
+        add_to_system_message: Optional[Union[str, List]] = None,
         is_termination_msg: Optional[Callable[[Dict], bool]] = None,
         max_consecutive_auto_reply: Optional[int] = None,
         human_input_mode: Literal["ALWAYS", "NEVER", "TERMINATE"] = "TERMINATE",
@@ -141,6 +142,8 @@ class ConversableAgent(LLMAgent):
             self._oai_messages = chat_messages
 
         self._oai_system_message = [{"content": system_message, "role": "system"}]
+        if add_to_system_message is not None:
+            self._oai_system_message += add_to_system_message
         self._description = description if description is not None else system_message
         self._is_termination_msg = (
             is_termination_msg
@@ -443,6 +446,11 @@ class ConversableAgent(LLMAgent):
         """Return the system message."""
         return self._oai_system_message[0]["content"]
 
+    @property
+    def system_messages_list(self) -> list:
+        """Return the system message."""
+        return self._oai_system_message
+
     def update_system_message(self, system_message: str) -> None:
         """Update the system message.
 
@@ -701,6 +709,7 @@ class ConversableAgent(LLMAgent):
     def _print_received_message(self, message: Union[Dict, str], sender: Agent):
         iostream = IOStream.get_default()
         # print the message received
+        
         iostream.print(colored(sender.name, "yellow"), "(to", f"{self.name}):\n", flush=True)
         message = self._message_to_dict(message)
 

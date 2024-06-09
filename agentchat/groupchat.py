@@ -918,8 +918,10 @@ class GroupChatManager(ConversableAgent):
         max_consecutive_auto_reply: Optional[int] = sys.maxsize,
         human_input_mode: Optional[str] = "NEVER",
         system_message: Optional[Union[str, List]] = "Group chat manager.",
+        silent: Optional[bool] = False,
         **kwargs,
     ):
+        self._silent = silent
         if (
             kwargs.get("llm_config")
             and isinstance(kwargs["llm_config"], dict)
@@ -1053,7 +1055,7 @@ class GroupChatManager(ConversableAgent):
                 reply["content"] = self.clear_agents_history(reply, groupchat)
 
             # The speaker sends the message without requesting a reply
-            speaker.send(reply, self, request_reply=False)
+            speaker.send(reply, self, request_reply=False, silent=self._silent)
             message = self.last_message(speaker)
         if self.client_cache is not None:
             for a in groupchat.agents:
@@ -1118,7 +1120,7 @@ class GroupChatManager(ConversableAgent):
             if reply is None:
                 break
             # The speaker sends the message without requesting a reply
-            await speaker.a_send(reply, self, request_reply=False)
+            await speaker.a_send(reply, self, request_reply=False, silent=self._silent)
             message = self.last_message(speaker)
         if self.client_cache is not None:
             for a in groupchat.agents:
